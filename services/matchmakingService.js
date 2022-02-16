@@ -139,7 +139,7 @@ exports.joinQueue = async (client, user, lineup) => {
             new MessageButton()
                 .setCustomId(`challenge_${lineupQueue.id}`)
                 .setLabel('Challenge them !')
-                .setEmoji('⚽')
+                .setEmoji('🏒')
                 .setStyle('PRIMARY')
         )
         const [channel] = await handle(client.channels.fetch(channelId))
@@ -277,7 +277,7 @@ exports.readyMatch = async (interaction, challenge, mixLineup) => {
     }
     let lobbyCreationEmbed = new MessageEmbed()
         .setColor('#6aa84f')
-        .setTitle(`${challenge ? '⚽ Challenge Accepted ⚽' : '⚽ Match Ready ⚽'}`)
+        .setTitle(`${challenge ? '🏒 Challenge Accepted 🏒' : '🏒 Match Ready 🏒'}`)
         .setTimestamp()
         .addField('Each player has received the lobby information in private message', lobbyCreationEmbedFieldValue)
 
@@ -338,7 +338,7 @@ exports.readyMatch = async (interaction, challenge, mixLineup) => {
         await statsService.updateStats(interaction, challenge.challengedTeam.lineup.team.region, challenge.challengedTeam.lineup.team.guildId, challenge.challengedTeam.lineup.size, challengedTeamUsers)
     }
     else { //This is a mix vs mix match     
-        const lobbyName = `${teamService.formatTeamName(mixLineup, true)} #${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+        const lobbyName = `${teamService.formatTeamName(mixLineup, true)} #${Math.floor(Math.random() * 10000).toString().padStart(2, '0')}`
         await teamService.clearLineup(mixLineup.channelId, [1, 2])
         const allUsers = mixLineup.roles.map(role => role.user).filter(user => user)
         let mixNextMatchEmbeds = await interactionUtils.createLineupEmbedsForNextMatch(interaction, mixLineup, null, lobbyName, lobbyPassword)
