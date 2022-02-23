@@ -459,6 +459,7 @@ exports.createInformationEmbed = (author, description) => {
 exports.createLineupComponents = createLineupComponents
 
 function createLineupComponents(interaction, lineup, lineupQueue, challenge, selectedLineupNumber = 1) {
+    console.log(lineup)
     components = createRolesComponent(lineup, selectedLineupNumber)
 
     const lineupActionsRow = new MessageActionRow()
