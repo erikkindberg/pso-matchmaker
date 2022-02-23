@@ -556,6 +556,7 @@ module.exports = {
                     const split = interaction.customId.split('_')
                     const selectedLineup = parseInt(split[2])
                     let lineup = await teamService.retrieveLineup(interaction.channelId)
+                    console.log(lineup)
                     const components = interactionUtils.createLineupComponents(lineup, null, null, selectedLineup)
                     await interaction.reply({ content: `What do you want to do in the **Mix #${selectedLineup}** ?`, components, ephemeral: true })
                 }
