@@ -540,6 +540,8 @@ function createRolesComponent(lineup, selectedLineupNumber = 1) {
     const attackersActionRow = new MessageActionRow()
     const defendersActionRow = new MessageActionRow()
 
+    console.log(lineup)
+
     const roles = lineup.roles.filter(role => role.lineupNumber === selectedLineupNumber)
     for (let role of roles) {
         let actionRow
