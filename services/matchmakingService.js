@@ -326,7 +326,7 @@ exports.isMixOrCaptainsReadyToStart = async (lineup) => {
         const missingRolesForMix = mixTeamLineup.roles.filter(role => role.lineupNumber === 1).filter(role => role.user == null)
         const allMissingRoles = missingRolesForMix.concat(missingRolesForTeam)
 
-        return allMissingRoles.length == 0 || (lineup.size > 3 && (allMissingRoles.length == 1 && allMissingRoles[0].name.includes('GK')))
+        return allMissingRoles.length == 0 /*|| (lineup.size > 3 && (allMissingRoles.length == 1 && allMissingRoles[0].name.includes('GK')))*/
     }
 
     if (!challenge && lineup.isMix()) {
