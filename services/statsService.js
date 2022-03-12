@@ -15,7 +15,8 @@ function getLevelingRoleIdsFromStats(userStats) {
     if (userStats.numberOfGames >= 800) {
         roles.push(process.env.EUSL_EU_DISCORD_VETERAN_ROLE_ID)
     }
-    return roles
+
+    return process.env.PSO_EU_DISCORD_BEGINNER_ROLE_ID
 }
 
 async function findElligibleStatsForLevelling(userIds) {
@@ -39,10 +40,6 @@ async function findElligibleStatsForLevelling(userIds) {
             }
         }
     ])
-}
-
-exports.deleteStatsByGuildId = async (guildId) => {
-    await Stats.deleteMany({ guildId })
 }
 
 exports.countNumberOfPlayers = async (region, guildId, lineupSizes = []) => {
@@ -151,7 +148,14 @@ exports.updateStats = async (interaction, region, guildId, lineupSize, users) =>
             const levelingRoleIds = getLevelingRoleIdsFromStats(elligibleStats)
             const [member] = await handle(euslEuGuild.members.fetch(elligibleStats._id))
             if (member) {
-                await handle(member.roles.add(levelingRoleIds))
+                await handle(member.roles.add(levelingRoleId))
+                if (levelingRoleId === process.env.PSO_EU_DISCORD_CHALLENGER_ROLE_ID) {
+                    await handle(member.roles.remove(process.env.PSO_EU_DISCORD_BEGINNER_ROLE_ID))
+                } else if (levelingRoleId === process.env.PSO_EU_DISCORD_EXPERT_ROLE_ID) {
+                    await handle(member.roles.remove(process.env.PSO_EU_DISCORD_CHALLENGER_ROLE_ID))
+                } else if (levelingRoleId === process.env.PSO_EU_DISCORD_VETERAN_ROLE_ID) {
+                    await handle(member.roles.remove(process.env.PSO_EU_DISCORD_EXPERT_ROLE_ID))
+                }
             }
         }))
     }

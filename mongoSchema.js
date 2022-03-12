@@ -91,6 +91,9 @@ lineupSchema.methods.isCaptains = function () {
 lineupSchema.methods.isMixOrCaptains = function () {
     return this.isMix() || this.isCaptains()
 }
+lineupSchema.methods.numberOfSignedPlayers = function () {
+    return this.roles.filter(role => role.lineupNumber === 1).filter(role => role.user != null).length
+}
 exports.Lineup = mongoose.model('Lineup', lineupSchema, 'lineups')
 
 const lineupQueueSchema = new mongoose.Schema({
@@ -98,10 +101,9 @@ const lineupQueueSchema = new mongoose.Schema({
         type: lineupSchema,
         required: true
     },
-    reserved: {
-        type: Boolean,
-        required: true,
-        default: false
+    challengeId: {
+        type: String,
+        required: false
     },
     notificationMessages: {
         type: [{
@@ -165,6 +167,8 @@ const statsSchema = new mongoose.Schema({
     }
 })
 exports.Stats = mongoose.model('Stats', statsSchema, 'stats')
+statsSchema.index({ userId: 1 }, { lineupSize: 1 });
+statsSchema.index({ region: 1 }, { guildId: 1 }, { lineupSize: 1 }, { userId: 1 });
 
 const bansSchema = new mongoose.Schema({
     userId: {

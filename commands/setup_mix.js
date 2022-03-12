@@ -28,7 +28,7 @@ module.exports = {
             )
             .addStringOption(option => option.setName('name')
                 .setRequired(false)
-                .setDescription('Sets a name for this lineup. Useful if you have multiple lineups inside your team'))
+                .setDescription('Sets a name for this mix. Useful if you have multiple mixes inside your team'))
             .addStringOption(option => option.setName('visibility')
                 .setRequired(false)
                 .setDescription('If you set the visibility to public, you mix will be visible in the whole region')
@@ -46,7 +46,7 @@ module.exports = {
         let lineupName = interaction.options.getString("name")
         if (!teamService.validateLineupName(lineupName)) {
             await interaction.reply({
-                content: `❌ Please choose a name with less than ${constants.MAX_LINEUP_NAME_LENGTH} characters.`,
+                content: `⛔ Please choose a name with less than ${constants.MAX_LINEUP_NAME_LENGTH} characters.`,
                 ephemeral: true
             })
             return

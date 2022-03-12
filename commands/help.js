@@ -14,7 +14,7 @@ module.exports = {
             Each **Team** can be a *competitive* team (with members that compete in the EUSL for example), or a *mix* team (with any EUSL player mixed all together)`)
 
         const setupEmbed = new MessageEmbed()
-            .setColor('#0099ff')
+            .setColor('#566573')
             .setTitle(`How to configure the bot ?`)
             .setTimestamp()
             .addField('1) Invite the bot on your discord', `Click on the following link to invite the bot on your discord server: https://discord.com/api/oauth2/authorize?client_id=937464012013187082&permissions=2147904576&scope=bot%20applications.commands`)
@@ -45,7 +45,7 @@ module.exports = {
          `)
 
         const matchmakingEmbed = new MessageEmbed()
-            .setColor('#0099ff')
+            .setColor('#566573')
             .setTitle(`How to use the matchmaking ?`)
             .setTimestamp()
             .addField('Want to see the teams that are looking for a match ?', `Use the **/challenges** command.`)
@@ -54,7 +54,7 @@ module.exports = {
             .addField('Want to sign in your lineup or see its status ?', `Use the **/status** command.`)
 
         const otherEmbed = new MessageEmbed()
-            .setColor('#0099ff')
+            .setColor('#566573')
             .setTitle(`Other`)
             .setTimestamp()
             .addField('Want to report a bug or suggest a feature ?', 'Send a direct message to Erikk#4458')

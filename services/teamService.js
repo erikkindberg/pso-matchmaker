@@ -66,6 +66,9 @@ exports.validateLineupName = (name) => {
 
 exports.formatTeamName = (lineup, filterName) => {
     let name = lineup.team.name
+    if (lineup.name) {
+        name += ` *(${lineup.name})*`
+    }
 
     return filterName ? removeSpecialCharacters(name) : name
 }
@@ -193,18 +196,20 @@ exports.leaveLineup = async (interaction, channel, lineup) => {
     let roleLeft = lineup.roles.find(role => role.user?.id === interaction.user.id)
 
     if (!roleLeft) {
-        await interaction.reply({ content: `❌ You are not in the lineup`, ephemeral: true })
+        await interaction.reply({ content: `⛔ You are not in the lineup`, ephemeral: true })
         return
     }
 
     lineup = await this.removeUserFromLineup(lineup.channelId, interaction.user.id)
     await matchmakingService.removeUserFromLineupQueue(lineup.channelId, interaction.user.id)
 
-    let description = `Player ${interaction.user} left the ${lineup.isMixOrCaptains() ? 'queue !' : `**${roleLeft.name}** position`}`
-
+    let description = `:outbox_tray: ${interaction.user} left the ${lineup.isMixOrCaptains() ? 'queue !' : `**${roleLeft.name}** position`}`
     const autoSearchResult = await matchmakingService.checkIfAutoSearch(interaction.client, interaction.user, lineup)
     if (autoSearchResult.leftQueue) {
-        description += `\nYour team has been removed from the **${lineup.size}v${lineup.size}** queue !`
+        description += `\nYou are no longer searching for a team.`
+    }
+    if (autoSearchResult.cancelledChallenge) {
+        description += `\nThe challenge request has been cancelled.`
     }
 
     let reply = await interactionUtils.createReplyForLineup(interaction, lineup, autoSearchResult.updatedLineupQueue)
@@ -220,7 +225,10 @@ exports.notifyChannelForUserLeaving = async (client, user, channelId, descriptio
 
         const autoSearchResult = await matchmakingService.checkIfAutoSearch(client, user, lineup)
         if (autoSearchResult.leftQueue) {
-            description += `\nYour team has been removed from the **${lineup.size}v${lineup.size}** queue !`
+            description += `\nYou are no longer searching for a team.`
+        }
+        if (autoSearchResult.cancelledChallenge) {
+            description += `\nThe challenge request has been cancelled.`
         }
 
         const embed = interactionUtils.createInformationEmbed(user, description)

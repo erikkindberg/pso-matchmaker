@@ -7,47 +7,49 @@ const { handle } = require("../utils");
 
 exports.replyAlreadyQueued = async (interaction, lineupSize) => {
     await interaction.reply({
-        content: `❌ You are already queued for ${lineupSize}v${lineupSize}. Please use the /stop_search command before using this command`,
+        content: `⛔ You are already queued for ${lineupSize}v${lineupSize}. Please use the /stop_search command before using this command`,
         ephemeral: true
     })
 }
 
 exports.replyNotQueued = async (interaction) => {
     await interaction.reply({
-        content: `❌ Your team is not queued for matchmaking`,
+        content: `⛔ Your team is not queued for matchmaking`,
         ephemeral: true
     })
 }
 
 exports.replyTeamNotRegistered = async (interaction) => {
     await interaction.reply({
-        content: '❌ Please register your team with the /register_team command first',
+        content: '⛔ Please register your team with the /register_team command first',
         ephemeral: true
     })
 }
 
 exports.replyAlreadyChallenging = async (interaction, challenge) => {
     await interaction.reply({
-        content: `❌ Your team is negotiating a challenge between the teams '${teamService.formatTeamName(challenge.initiatingTeam.lineup)}' and '${teamService.formatTeamName(challenge.challengedTeam.lineup)}'`,
+        content: `⛔ Your team is negotiating a challenge between the teams '${teamService.formatTeamName(challenge.initiatingTeam.lineup)}' and '${teamService.formatTeamName(challenge.challengedTeam.lineup)}'`,
         ephemeral: true
     })
 }
 
 exports.replyLineupNotSetup = async (interaction) => {
     await interaction.reply({
-        content: '❌ This channel has no lineup configured yet. Use the /setup_lineup command to choose a lineup format',
+        content: '⛔ This channel has no lineup configured yet. Use the /setup_lineup command to choose a lineup format',
         ephemeral: true
     })
 }
 
 exports.createCancelChallengeReply = (interaction, challenge) => {
     let embed = new MessageEmbed()
-        .setColor('#0099ff')
+        .setColor('#566573')
+        .setFooter(`Author: ${interaction.user.username}`)
+        .setTimestamp()
 
     if (challenge.challengedTeam.lineup.isMix()) {
-        embed.setDescription(`💬 ${interaction.user} is challenging the mix '${teamService.formatTeamName(challenge.challengedTeam.lineup)}'. The match will start automatically once the mix lineup is full.`)
+        embed.setDescription(`💬 ${interaction.user} is challenging the mix '${teamService.formatTeamName(challenge.challengedTeam.lineup)}'.\nThe match will start automatically once the mix lineup is full.`)
     } else {
-        embed.setDescription(`💬 ${interaction.user} has sent a challenge request to the team '${teamService.formatTeamName(challenge.challengedTeam.lineup)}'. You can either wait for their answer, or cancel your request.`)
+        embed.setDescription(`💬 ${interaction.user} has sent a challenge request to the team '${teamService.formatTeamName(challenge.challengedTeam.lineup)}'.\nYou can either wait for their answer, or cancel your request.`)
     }
 
     let cancelChallengeRow = new MessageActionRow()
@@ -64,14 +66,22 @@ exports.createCancelChallengeReply = (interaction, challenge) => {
 exports.createDecideChallengeReply = (interaction, challenge) => {
 
     if (challenge.challengedTeam.lineup.isMix()) {
-        return createReplyForMixLineup(interaction, challenge.challengedTeam.lineup, challenge.initiatingTeam.lineup)
+        reply = createReplyForMixLineup(challenge.challengedTeam.lineup, challenge.initiatingTeam.lineup)
+        reply.embeds = reply.embeds.concat(this.createInformationEmbed(interaction.user, `**${teamService.formatTeamName(challenge.initiatingTeam.lineup)}** is challenging the mix`))
+        return reply
     } else {
+        let description = `**${teamService.formatTeamName(challenge.initiatingTeam.lineup)}**`
         const challengeEmbed = new MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle(`Team '${teamService.formatTeamName(challenge.initiatingTeam.lineup)}' is challenging you for a ${challenge.initiatingTeam.lineup.size}v${challenge.initiatingTeam.lineup.size} match !`)
-            .setDescription(`Contact ${challenge.initiatingUser.mention} if you want to arrange further.`)
+            .setColor('#566573')
+            .setTitle(`A team wants to play against you !`)
             .setTimestamp()
             .setFooter(`Author: ${interaction.user.username}`)
+        description += `\n${challenge.initiatingTeam.lineup.roles.filter(role => role.user != null).length} players signed`
+        if (!teamService.hasGkSigned(challenge.initiatingTeam.lineup)) {
+            description += ' **(no GK)**'
+        }
+        description += `\n\n*Contact ${challenge.initiatingUser.mention} for more information*`
+        challengeEmbed.setDescription(description)
         let challengeActionRow = new MessageActionRow()
             .addComponents(
                 new MessageButton()
@@ -94,11 +104,11 @@ exports.createReplyForLineup = async (interaction, lineup, lineupQueue) => {
         if (challenge) {
             challengingLineup = await teamService.retrieveLineup(challenge.initiatingTeam.lineup.channelId)
         }
-        return createReplyForMixLineup(interaction, lineup, challengingLineup)
+        return createReplyForMixLineup(lineup, challengingLineup)
     }
 
     if (lineup.isCaptains()) {
-        return createReplyForCaptainsLineup(interaction, lineup)
+        return createReplyForCaptainsLineup(lineup)
     }
 
     return createReplyForTeamLineup(interaction, lineup, lineupQueue)
@@ -130,7 +140,7 @@ exports.createCaptainsPickComponent = (roles) => {
 }
 
 exports.replyNotAllowed = async (interaction) => {
-    await interaction.reply({ content: '❌ You are not allowed to execute this command', ephemeral: true })
+    await interaction.reply({ content: '⛔ You are not allowed to execute this command', ephemeral: true })
 }
 
 exports.createStatsEmbeds = async (interaction, userId, region, guildId) => {
@@ -152,7 +162,7 @@ exports.createStatsEmbeds = async (interaction, userId, region, guildId) => {
         statsType = '👕 Team'
     }
     const statsEmbed = new MessageEmbed()
-        .setColor('#0099ff')
+        .setColor('#566573')
         .setTitle(`${statsType} Stats`)
         .setTimestamp()
         .setDescription(user.toString())
@@ -244,29 +254,27 @@ exports.createLeaderBoardPaginationComponent = (searchOptions = {}, numberOfPage
     return paginationActionsRow
 }
 
-exports.createLineupEmbedsForNextMatch = async (interaction, lineup, opponentLineup, lobbyName, lobbyPassword) => {
+exports.createLineupEmbedsForNextMatch = async (interaction, lineup, opponentLineup, lobbyName, lobbyPassword, responsibleUser) => {
     const lineupEmbedsForNextMatch = []
-    const firstLineupEmbed = await createLineupEmbed(interaction, lineup, opponentLineup, lobbyName, lobbyPassword, 1)
+    const firstLineupEmbed = await createLineupEmbed(interaction, lineup, opponentLineup, lobbyName, lobbyPassword, responsibleUser, 1)
     lineupEmbedsForNextMatch.push(firstLineupEmbed)
 
     if (!opponentLineup && lineup.isMixOrCaptains()) {
-        const secondLineupEmbed = await createLineupEmbed(interaction, lineup, opponentLineup, lobbyName, lobbyPassword, 2)
+        const secondLineupEmbed = await createLineupEmbed(interaction, lineup, opponentLineup, lobbyName, lobbyPassword, responsibleUser, 2)
         lineupEmbedsForNextMatch.push(secondLineupEmbed)
     }
 
     return lineupEmbedsForNextMatch
 }
 
-async function createLineupEmbed(interaction, lineup, opponentLineup, lobbyName, lobbyPassword, lineupNumber = 1) {
+async function createLineupEmbed(interaction, lineup, opponentLineup, lobbyName, lobbyPassword, responsibleUser, lineupNumber = 1) {
     const roles = lineup.roles.filter(role => role.lineupNumber === lineupNumber)
 
-    const opponentTeamName = opponentLineup ? teamService.formatTeamName(opponentLineup) : `${teamService.formatTeamName(lineup)} #${lineupNumber}`
+    const opponentTeamName = opponentLineup ? teamService.formatTeamName(opponentLineup) : `${lineupNumber === 1 ? 'Blue' : 'Red'} Team`
 
     let lineupEmbed = new MessageEmbed()
         .setColor('#6aa84f')
-        .setTitle(opponentLineup ? `Lineup against ${opponentTeamName}` : `Team #${lineupNumber} lineup`)
-        .setTimestamp()
-        .setFooter(`Author: ${interaction.user.username}`)
+        .setTitle(opponentLineup ? `Lineup against ${opponentTeamName}` : `${lineupNumber === 1 ? 'Red' : 'Blue'} Team lineup`)
     const promises = roles.map(async (role) => {
         if (!role.user) {
             return { role, playerName: '\u200b' }
@@ -280,15 +288,16 @@ async function createLineupEmbed(interaction, lineup, opponentLineup, lobbyName,
                 await matchmakingService.removeUserFromAllLineupQueues(role.user.id)
                 await teamService.removeUserFromLineupsByChannelIds(role.user.id, channelIds)
                 await Promise.all(channelIds.map(async channelId => {
-                    await teamService.notifyChannelForUserLeaving(interaction.client, discordUser, channelId, `⚠ Player ${discordUser} has gone to play another match.`)
+                    await teamService.notifyChannelForUserLeaving(interaction.client, discordUser, channelId, `⚠ ${discordUser} went to play another match with **${teamService.formatTeamName(lineup)}**`)
                 }))
             }
             let playerDmEmbed = new MessageEmbed()
                 .setColor('#6aa84f')
                 .setTitle(`:hockey: EUSL Match ready :hockey:`)
                 .setDescription(`You are playing${lineup.isCaptains() && !role.name.includes('GK') ? ' ' : ` **${role.name}** `}against **${opponentTeamName}**`)
-                .addField('Lobby name', `${lobbyName}`)
-                .addField('Lobby password', `${lobbyPassword}`)
+                .addField('Lobby Name', `${lobbyName}`)
+                .addField('Lobby Password', `${lobbyPassword}`)
+                .addField('Lobby Host', `${responsibleUser}`)
                 .setTimestamp()
             await handle(discordUser.send({ embeds: [playerDmEmbed] }))
             playerName = discordUser
@@ -363,89 +372,12 @@ exports.createLeaderBoardLineupSizeComponent = (statsType) => {
     )
 }
 
-exports.challenge = async (interaction, lineupQueueIdToChallenge) => {
-    let lineupQueueToChallenge = await matchmakingService.findLineupQueueById(lineupQueueIdToChallenge)
-    if (!lineupQueueToChallenge) {
-        await interaction.reply({ content: "❌ This team is no longer challenging", ephemeral: true })
-        return
-    }
-
-    let challenge = await matchmakingService.findChallengeByChannelId(interaction.channelId)
-    if (challenge) {
-        await this.replyAlreadyChallenging(interaction, challenge)
-        return
-    }
-
-    challenge = await matchmakingService.findChallengeByChannelId(lineupQueueToChallenge.lineup.channelId)
-    if (challenge) {
-        await interaction.reply({ content: "❌ This team is negociating a challenge", ephemeral: true })
-        return
-    }
-
-    let lineup = await teamService.retrieveLineup(interaction.channelId)
-    if (!lineup) {
-        await this.replyLineupNotSetup(interaction)
-        return
-    }
-
-    if (!matchmakingService.isUserAllowedToInteractWithMatchmaking(interaction.user.id, lineup)) {
-        await interaction.reply({ content: `⛔ You must be in the lineup in order to challenge a team`, ephemeral: true })
-        return
-    }
-
-    if (!matchmakingService.isLineupAllowedToJoinQueue(lineup)) {
-        await interaction.reply({ content: '⛔ All outfield positions must be filled before challenging a team', ephemeral: true })
-        return
-    }
-
-    if (lineupQueueToChallenge.lineup.size !== lineup.size) {
-        await interaction.reply({ content: `❌ Your team is configured for ${lineup.size}v${lineup.size} while the team you are trying to challenge is configured for ${lineupQueueToChallenge.lineup.size}v${lineupQueueToChallenge.lineup.size}. Both teams must have the same size to challenge.`, ephemeral: true })
-        return
-    }
-
-    if (lineupQueueToChallenge.lineup.isMix()) {
-        const numberOfSignedPlayers = lineupQueueToChallenge.lineup.roles.filter(role => role.user).map(role => role.user).length
-        const percentageOfSignedPlayers = (numberOfSignedPlayers / (lineupQueueToChallenge.lineup.size * 2 - 1)) * 100
-        if (percentageOfSignedPlayers >= 75) {
-            await interaction.reply({ content: 'This mix has too many players signed in both teams, you cannot challenge it right now', ephemeral: true })
-            return
-        }
-    }
-
-    if (await matchmakingService.checkForDuplicatedPlayers(interaction, lineup, lineupQueueToChallenge.lineup)) {
-        return
-    }
-
-    let lineupQueue = await matchmakingService.findLineupQueueByChannelId(interaction.channelId)
-    if (!lineupQueue) {
-        lineupQueue = new LineupQueue({ lineup })
-    }
-    challenge = new Challenge({
-        initiatingUser: {
-            id: interaction.user.id,
-            name: interaction.user.username,
-            mention: interaction.user.toString()
-        },
-        initiatingTeam: lineupQueue,
-        challengedTeam: lineupQueueToChallenge
-    })
-
-    let channel = await interaction.client.channels.fetch(challenge.challengedTeam.lineup.channelId)
-    let challengedMessage = await channel.send(this.createDecideChallengeReply(interaction, challenge))
-    challenge.challengedMessageId = challengedMessage.id
-
-    await matchmakingService.reserveLineupQueuesByIds([lineupQueueIdToChallenge, lineupQueue.id])
-    let initiatingMessage = await interaction.channel.send(this.createCancelChallengeReply(interaction, challenge))
-    challenge.initiatingMessageId = initiatingMessage.id
-
-    await challenge.save()
-
-    await interaction.deferUpdate()
-
-    if (await matchmakingService.isMixOrCaptainsReadyToStart(lineupQueueToChallenge.lineup)) {
-        await matchmakingService.readyMatch(interaction, challenge, lineup)
-        return
-    }
+exports.createInformationEmbed = (author, description) => {
+    return new MessageEmbed()
+        .setColor('#566573')
+        .setTimestamp()
+        .setDescription(description)
+        .setFooter(`Author: ${author.username}`)
 }
 
 exports.createInformationEmbed = (author, description) => {
@@ -476,11 +408,11 @@ function createLineupComponents(lineup, lineupQueue, challenge, selectedLineupNu
                 lineupActionsRow.addComponents(
                     new MessageButton()
                         .setCustomId(`accept_challenge_${challenge.id}`)
-                        .setLabel(`Accept Challenge`)
+                        .setLabel(`Accept`)
                         .setStyle('SUCCESS'),
                     new MessageButton()
                         .setCustomId(`refuse_challenge_${challenge.id}`)
-                        .setLabel(`Refuse Challenge`)
+                        .setLabel(`Refuse`)
                         .setStyle('DANGER')
                 )
             }
@@ -596,7 +528,7 @@ async function createReplyForTeamLineup(interaction, lineup, lineupQueue) {
     return { components: createLineupComponents(interaction, lineup, lineupQueue, challenge) }
 }
 
-function createReplyForMixLineup(interaction, lineup, challengingLineup) {
+function createReplyForMixLineup(lineup, challengingLineup) {
     let firstLineupEmbed = new MessageEmbed()
         .setColor('#0099ff')
         .setTitle(`Red Team`)
@@ -608,12 +540,10 @@ function createReplyForMixLineup(interaction, lineup, challengingLineup) {
     if (challengingLineup) {
         secondLineupEmbed = new MessageEmbed()
             .setColor('#0099ff')
-            .setTitle(`VS`)
-            .setTimestamp()
-            .setFooter(`Author: ${interaction.user.username}`)
+            .setTitle(`:vs:`)
         let fieldValue = challengingLineup.roles.filter(role => role.user != null).length + ' players signed'
         if (!teamService.hasGkSigned(challengingLineup)) {
-            fieldValue += ' **(no gk)**'
+            fieldValue += ' **(no GK)**'
         }
         secondLineupEmbed.addField(teamService.formatTeamName(challengingLineup, false), fieldValue)
     } else {
@@ -645,18 +575,16 @@ function createReplyForMixLineup(interaction, lineup, challengingLineup) {
         new MessageButton()
             .setCustomId(`leaveLineup`)
             .setLabel(`Leave`)
-            .setStyle('DANGER')
+            .setStyle('SECONDARY')
     )
 
     return { embeds: [firstLineupEmbed, secondLineupEmbed], components: [lineupActionsComponent] }
 }
 
-function createReplyForCaptainsLineup(interaction, lineup) {
+function createReplyForCaptainsLineup(lineup) {
     let lineupEmbed = new MessageEmbed()
-        .setColor('#0099ff')
-        .setTitle(`Player queue`)
-        .setTimestamp()
-        .setFooter(`Author: ${interaction.user.username}`)
+        .setColor('#ed4245')
+        .setTitle(`Player Queue`)
     fillLineupEmbedWithRoles(lineupEmbed, lineup.roles)
 
     const numberOfOutfieldUsers = lineup.roles.filter(role => !role.name.includes('GK') && role.user).length

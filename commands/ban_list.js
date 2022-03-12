@@ -21,7 +21,7 @@ module.exports = {
         const bans = await teamService.findBansByGuildId(team.guildId)
 
         const bansEmbed = new MessageEmbed()
-            .setColor('#0099ff')
+            .setColor('#566573')
             .setTitle(`Banned players`)
             .setTimestamp()
 
@@ -37,8 +37,7 @@ module.exports = {
                 username = user.username
                 let bansEmbedFieldValue = '*Permanent*'
                 if (ban.expireAt) {
-                    const banExpirationDate = new Date(ban.expireAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: 'numeric' })
-                    bansEmbedFieldValue = banExpirationDate
+                    bansEmbedFieldValue = ban.expireAt.toUTCString()
                 }
                 bansEmbed.addField(username, bansEmbedFieldValue)
             }
