@@ -494,7 +494,7 @@ function isLineupAllowedToJoinQueue(lineup) {
     let lineupSize = lineup.isMixOrCaptains() ? lineup.size * 2 : lineup.size
     let numberOfMissingPlayers = lineupSize - numberOfPlayersSigned
     let missingRoleName = lineup.roles.find(role => role.user == null)?.name
-    return numberOfMissingPlayers == 0 || (lineup.size > 3 && (numberOfMissingPlayers == 1 && missingRoleName.includes('GK')))
+    return numberOfMissingPlayers == 0 /*|| (lineup.size > 3 && (numberOfMissingPlayers == 1 && missingRoleName.includes('GK')))*/
 }
 
 async function freeLineupQueuesByChallengeIds(challengeIds) {
