@@ -151,7 +151,7 @@ module.exports = {
                         lineup = await teamService.startPicking(lineup.channelId)
 
                         const allUserIds = lineup.roles.filter(role => !role.name.includes('GK')).map(role => role.user.id)
-                        console.log()
+                        console.log(allUserIds)
                         let captainsIds = (await matchmakingService.findTwoMostRelevantCaptainsIds(allUserIds)).map(result => result._id)
                         if (captainsIds.length < 2) {
                             captainsIds = [allUserIds.splice(Math.floor(Math.random() * allUserIds.length), 1)[0], allUserIds.splice(Math.floor(Math.random() * allUserIds.length), 1)[0]]
