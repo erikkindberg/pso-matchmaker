@@ -550,7 +550,6 @@ function createReplyForMixLineup(lineup, challengingLineup) {
             .setColor('#0099ff')
             .setTitle(`Blue Team`)
             .setTimestamp()
-            .setFooter(`Author: ${interaction.user.username}`)
         fillLineupEmbedWithRoles(secondLineupEmbed, lineup.roles.filter(role => role.lineupNumber === 2))
     }
 
