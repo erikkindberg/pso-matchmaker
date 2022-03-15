@@ -151,7 +151,6 @@ module.exports = {
                         lineup = await teamService.startPicking(lineup.channelId)
 
                         const allUserIds = lineup.roles.filter(role => !role.name.includes('GK')).map(role => role.user.id)
-                        console.log(allUserIds)
                         let captainsIds = (await matchmakingService.findTwoMostRelevantCaptainsIds(allUserIds)).map(result => result._id)
                         if (captainsIds.length < 2) {
                             captainsIds = [allUserIds.splice(Math.floor(Math.random() * allUserIds.length), 1)[0], allUserIds.splice(Math.floor(Math.random() * allUserIds.length), 1)[0]]
@@ -212,7 +211,13 @@ module.exports = {
                             const pickedUserId = i.customId.split('_')[1]
                             const pickedRole = remainingRoles.splice(remainingRoles.findIndex(role => role.user.id === pickedUserId), 1)[0]
                             let teamRoles = currentCaptain.id === firstCaptain.id ? firstTeamRoles : secondTeamRoles
+                            console.log("------------------")
+                            console.log(teamRoles)
+                            console.log("------------------")
                             if (pickedRole.name.includes('GK')) {
+                                console.log("*****************")
+                                console.log(otherTeamRoles)
+                                console.log("*****************")
                                 teamRoles.find(role => role.name.includes('GK')).user = pickedRole.user
                                 const otherTeamRoles = currentCaptain.id === firstCaptain.id ? secondTeamRoles : firstTeamRoles
                                 const lastGkIndex = remainingRoles.findIndex(role => role.name.includes('GK'))
@@ -228,6 +233,10 @@ module.exports = {
 
                             if (remainingRoles.length <= 1 || teamRoles.filter(role => role.user).length === teamRoles.length || (teamRoles.filter(role => role.user).length === teamRoles.length - 1 && teamRoles.find(role => !role.user).name.includes('GK'))) {
                                 teamRoles = currentCaptain.id === firstCaptain.id ? secondTeamRoles : firstTeamRoles
+                                console.log("+++++++++++++++++++++++++++")
+                                console.log(teamRoles)
+                                console.log(remainingRoles)
+                                console.log("+++++++++++++++++++++++++++++")
                                 for (let remainingRole of remainingRoles) {
                                     if (remainingRole.name.includes('GK')) {
                                         teamRoles.find(role => role.name.includes('GK')).user = remainingRole.user
