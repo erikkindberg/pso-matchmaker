@@ -390,7 +390,7 @@ exports.createInformationEmbed = (author, description) => {
 
 exports.createLineupComponents = createLineupComponents
 
-function createLineupComponents(lineup, lineupQueue, challenge, selectedLineupNumber = 1) {
+function createLineupComponents(interaction, lineup, lineupQueue, challenge, selectedLineupNumber = 1) {
     console.log(lineup)
     components = createRolesComponent(lineup, selectedLineupNumber)
 
