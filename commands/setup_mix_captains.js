@@ -12,6 +12,8 @@ module.exports = {
             .addIntegerOption(option => option.setName('size')
                 .setRequired(true)
                 .setDescription('The number of players in each team')
+                .addChoice('1', 1)
+                .addChoice('2', 2)
                 .addChoice('3', 3)
                 .addChoice('4', 4)
                 .addChoice('5', 5)

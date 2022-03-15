@@ -1,6 +1,6 @@
 const { Permissions } = require("discord.js");
 
-exports.BOT_ADMIN_ROLE = 'PUG Admin'
+exports.BOT_ADMIN_ROLE = 'PUG ADMIN'
 
 exports.isBotAllowed = (interaction) => {
     return interaction.channel.type === 'GUILD_TEXT'
