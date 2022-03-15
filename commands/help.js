@@ -17,7 +17,7 @@ module.exports = {
             .setColor('#566573')
             .setTitle(`How to configure the bot ?`)
             .setTimestamp()
-            .addField('1) Invite the bot on your discord', `Click on the following link to invite the bot on your discord server: https://discord.com/api/oauth2/authorize?client_id=937464012013187082&permissions=2147904576&scope=bot%20applications.commands`)
+            .addField('1) Invite the bot on your discord', `Click on the following link to invite the bot on your discord server: https://discord.com/api/oauth2/authorize?client_id=952298356535873636&permissions=2147904576&scope=bot%20applications.commands`)
             .addField('2) Create your team', `Use the **/register_team** command anywhere on your discord server to create your team.`)
             .addField('3) Create lineups', `
          On any channel in you discord server, use one of the following command to configure a lineup and get ready to play and face other teams.
