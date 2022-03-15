@@ -24,7 +24,7 @@ module.exports = {
 
          **/setup_lineup**: If you want to challenge other teams and mix, this is the command you need. You just have to choose a size and you're ready to go !
 
-         **/setup_mix**: If you want to play with friends, but don't want to make it official or play in any competition, you can use this command to setup a mix lineup. With mix, you can play with each other, or even against a team if they decide to challenge you !
+         **/setup_mix**: If you want to play with friends, but don't want to make it official or play in any competition, you can use this command to setup a mix lineup. With mix, you can play with each other, or even against a team if they decide to challenge you!
 
          **/setup_mix_captains**: This command is very similar to the /setup_mix command, but instead of choosing a pre-defined position, the teams are picked by a captain on each team`)
             .addField('4) Command Permissions', `
