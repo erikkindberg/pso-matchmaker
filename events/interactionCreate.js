@@ -215,11 +215,11 @@ module.exports = {
                             console.log(teamRoles)
                             console.log("------------------")
                             if (pickedRole.name.includes('GK')) {
+                                teamRoles.find(role => role.name.includes('GK')).user = pickedRole.user
+                                const otherTeamRoles = currentCaptain.id === firstCaptain.id ? secondTeamRoles : firstTeamRoles
                                 console.log("*****************")
                                 console.log(otherTeamRoles)
                                 console.log("*****************")
-                                teamRoles.find(role => role.name.includes('GK')).user = pickedRole.user
-                                const otherTeamRoles = currentCaptain.id === firstCaptain.id ? secondTeamRoles : firstTeamRoles
                                 const lastGkIndex = remainingRoles.findIndex(role => role.name.includes('GK'))
                                 if (lastGkIndex >= 0) {
                                     const remainingGkRole = remainingRoles.splice(lastGkIndex, 1)[0]
