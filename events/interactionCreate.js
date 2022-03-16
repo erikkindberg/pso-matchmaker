@@ -190,6 +190,7 @@ module.exports = {
                             }
                         } else if (numberOfGksSigned === 1 && !firstCaptainRole.name.includes('GK') && !secondCaptainRole.name.includes('GK')) {
                             firstTeamRoles.find(role => role.name.includes('GK')).user = remainingRoles.splice(remainingRoles.findIndex(role => role.name.includes('GK')), 2)[0].user
+                            console.log(remainingRoles.splice(remainingRoles.findIndex(role => role.name.includes('GK')), 2)[0])
                         }
 
                         lineup.roles = firstTeamRoles.concat(secondTeamRoles)
@@ -223,7 +224,12 @@ module.exports = {
                                 const lastGkIndex = remainingRoles.findIndex(role => role.name.includes('GK'))
                                 if (lastGkIndex >= 0) {
                                     const remainingGkRole = remainingRoles.splice(lastGkIndex, 1)[0]
-                                    otherTeamRoles.find(role => role.name.includes('GK')).user = remainingGkRole.user
+                                    if(otherTeamRoles === firstTeamRoles){
+                                        firstTeamRoles.find(role => role.name.includes('GK')).user = remainingGkRole.user
+                                    }
+                                    else{
+                                        secondTeamRoles.find(role => role.name.includes('GK')).user = remainingGkRole.user
+                                    }
                                 }
                             } else {
                                 teamRoles.find(role => !role.user).user = pickedRole.user
@@ -238,6 +244,8 @@ module.exports = {
                                 console.log(remainingRoles)
                                 console.log("+++++++++++++++++++++++++++++")
                                 for (let remainingRole of remainingRoles) {
+                                    console.log(remainingRoles)
+                                    console.log(remainingRole)
                                     if (remainingRole.name.includes('GK')) {
                                         teamRoles.find(role => role.name.includes('GK')).user = remainingRole.user
                                     } else {

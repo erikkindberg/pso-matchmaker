@@ -77,9 +77,9 @@ exports.createDecideChallengeReply = (interaction, challenge) => {
             .setTimestamp()
             .setFooter(`Author: ${interaction.user.username}`)
         description += `\n${challenge.initiatingTeam.lineup.roles.filter(role => role.user != null).length} players signed`
-        if (!teamService.hasGkSigned(challenge.initiatingTeam.lineup)) {
-            description += ' **(no GK)**'
-        }
+        // if (!teamService.hasGkSigned(challenge.initiatingTeam.lineup)) {
+        //     description += ' **(no GK)**'
+        // }
         description += `\n\n*Contact ${challenge.initiatingUser.mention} for more information*`
         challengeEmbed.setDescription(description)
         let challengeActionRow = new MessageActionRow()
@@ -583,8 +583,8 @@ function createReplyForCaptainsLineup(lineup) {
         .setTitle(`Player Queue`)
     fillLineupEmbedWithRoles(lineupEmbed, lineup.roles)
 
-    const numberOfOutfieldUsers = lineup.roles.filter(role => !role.name.includes('GK') && role.user).length
-    const numberOfGkUsers = lineup.roles.filter(role => role.name.includes('GK') && role.user).length
+    const numberOfOutfieldUsers = lineup.roles.filter(role => /*!role.name.includes('GK') &&*/ role.user).length
+    // const numberOfGkUsers = lineup.roles.filter(role => role.name.includes('GK') && role.user).length
     const lineupActionsComponent = new MessageActionRow().addComponents(
         new MessageButton()
             .setCustomId(`leaveQueue`)
@@ -594,12 +594,12 @@ function createReplyForCaptainsLineup(lineup) {
             .setCustomId(`join_outfield`)
             .setLabel(`Join`)
             .setStyle('PRIMARY')
-            .setDisabled(numberOfOutfieldUsers === lineup.size * 2 - 2),
+            .setDisabled(numberOfOutfieldUsers === lineup.size * 2 /*- 2*/)/*,
         new MessageButton()
             .setCustomId(`join_gk`)
             .setLabel(`Join as GK`)
             .setStyle('SECONDARY')
-            .setDisabled(numberOfGkUsers === 2))
+            .setDisabled(numberOfGkUsers === 2)*/)
 
     return { embeds: [lineupEmbed], components: [lineupActionsComponent] }
 }

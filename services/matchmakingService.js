@@ -130,9 +130,9 @@ exports.joinQueue = async (client, user, lineup) => {
             .setTitle('A team is looking for a match !')
             .setTimestamp()
         description += `\n${lineup.roles.filter(role => role.user != null).length} players signed`
-        if (!teamService.hasGkSigned(lineupQueue.lineup)) {
-            description += ' **(no GK)**'
-        }
+        // if (!teamService.hasGkSigned(lineupQueue.lineup)) {
+        //     description += ' **(no GK)**'
+        // }
         description += `\n\n*Contact ${user} for more information*`
         teamEmbed.setDescription(description)
 

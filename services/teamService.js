@@ -27,9 +27,9 @@ const CDM = { name: 'CDM', type: ROLE_MIDFIELDER }
 
 const DEFAULT_PLAYER_ROLES = new Map([
     [1, [CM]],
-    [2, [CF, GK]],
-    [3, [LW, RW, GK]],
-    [4, [LW, RW, CDM, GK]],
+    [2, [CF, CDM]],
+    [3, [LW, RW, CDM]],
+    [4, [LW, RW, CDM, CDM]],
     [5, [LW, RW, LB, RB, GK]],
     [6, [LW, RW, CM, LB, RB, GK]],
     [7, [LW, RW, CM, LB, CB, RB, GK]],
@@ -327,16 +327,16 @@ exports.createLineup = (channelId, size, name, autoSearch, team, type, visibilit
     } else if (type === this.LINEUP_TYPE_CAPTAINS) {
         roles = []
         let i = 1
-        while (i < size) {
+        while (i <= size) {
             roles.push({ name: i, lineupNumber: 1 })
             i++
         }
-        while (i < (size * 2) - 1) {
+        while (i <= (size * 2)/* -1*/) {
             roles.push({ name: i, lineupNumber: 2 })
             i++
         }
-        roles.push({ ...GK, lineupNumber: 1 })
-        roles.push({ ...GK, lineupNumber: 2 })
+        // roles.push({ ...GK, lineupNumber: 1 })
+        // roles.push({ ...GK, lineupNumber: 2 })
     }
     let lineup = new Lineup({
         channelId,
