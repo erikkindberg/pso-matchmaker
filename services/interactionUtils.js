@@ -594,12 +594,12 @@ function createReplyForCaptainsLineup(lineup) {
             .setCustomId(`join_outfield`)
             .setLabel(`Join`)
             .setStyle('PRIMARY')
-            .setDisabled(numberOfOutfieldUsers === lineup.size * 2 - 2),
-        new MessageButton()
+            .setDisabled(numberOfOutfieldUsers === lineup.size * 2),
+        /*new MessageButton()
             .setCustomId(`join_gk`)
             .setLabel(`Join as GK`)
             .setStyle('SECONDARY')
-            .setDisabled(numberOfGkUsers === 2))
+            .setDisabled(numberOfGkUsers === 2)*/)
 
     return { embeds: [lineupEmbed], components: [lineupActionsComponent] }
 }

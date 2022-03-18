@@ -327,16 +327,16 @@ exports.createLineup = (channelId, size, name, autoSearch, team, type, visibilit
     } else if (type === this.LINEUP_TYPE_CAPTAINS) {
         roles = []
         let i = 1
-        while (i < size) {
+        while (i <= size) {
             roles.push({ name: i, lineupNumber: 1 })
             i++
         }
-        while (i < (size * 2) - 1) {
+        while (i < (size * 2)) {
             roles.push({ name: i, lineupNumber: 2 })
             i++
-        }
+        }/*
         roles.push({ ...GK, lineupNumber: 1 })
-        roles.push({ ...GK, lineupNumber: 2 })
+        roles.push({ ...GK, lineupNumber: 2 })*/
     }
     let lineup = new Lineup({
         channelId,
