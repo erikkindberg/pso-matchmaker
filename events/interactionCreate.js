@@ -7,6 +7,8 @@ const { MessageActionRow, MessageSelectMenu, InteractionCollector } = require("d
 const { handle } = require("../utils");
 const match = require("nodemon/lib/monitor/match");
 
+let previousLineUpReply
+
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction) {
@@ -24,7 +26,6 @@ module.exports = {
             await interaction.reply({ content: `⛔ You are ${ban.expireAt ? `banned until ${ban.expireAt.toUTCString()}` : 'permanently banned'}. You cannot use the bot on this server.`, ephemeral: true })
             return
         }
-
 
         if (interaction.isCommand()) {
             const command = interaction.client.commands.get(interaction.commandName);
@@ -44,7 +45,6 @@ module.exports = {
                 return
             }
         }
-
         try {
             if (interaction.isButton()) {
                 if (interaction.customId.startsWith("role_")) {
@@ -110,7 +110,6 @@ module.exports = {
                     await interaction.channel.send(reply)
                     return
                 }
-
                 if (interaction.customId.startsWith('join_')) {
                     const customId = interaction.customId.split('_')[1]
 
@@ -147,6 +146,9 @@ module.exports = {
 
                     let description = `:inbox_tray: ${interaction.user} has joined the queue !`
 
+                    const embed = interactionUtils.createInformationEmbed(interaction.user, description)
+                    await interaction.channel.send({embeds: [embed]}).then(message => {
+                        setTimeout(()=> message.delete(), 3000)})
                     if (await matchmakingService.isMixOrCaptainsReadyToStart(lineup)) {
                         lineup = await teamService.startPicking(lineup.channelId)
 
@@ -285,15 +287,16 @@ module.exports = {
                         })
                         return
                     }
-                    const embed = interactionUtils.createInformationEmbed(interaction.user, description)
-                    let reply = await interactionUtils.createReplyForLineup(interaction, lineup)
-                    reply.embeds = reply.embeds.concat(embed)
-                    await interaction.update({ components: [] })
-                    await interaction.channel.send(reply)
 
+                    await interaction.update({ components: [] })
+                    if(typeof previousLineUpReply !== undefined){
+                        interaction.channel.messages.fetch(previousLineUpReply).then(message => message.delete())
+                    }
+
+                    let reply = await interactionUtils.createReplyForLineup(interaction, lineup)
+                    await interaction.channel.send(reply).then(newMessage => {previousLineUpReply=newMessage.id})
                     return
                 }
-
                 if (interaction.customId === 'leaveQueue') {
                     const lineup = await teamService.removeUserFromLineup(interaction.channelId, interaction.user.id)
                     if (!lineup) {
@@ -306,9 +309,15 @@ module.exports = {
                     }
                     await interaction.update({ components: [] })
                     const embed = interactionUtils.createInformationEmbed(interaction.user, `:outbox_tray: ${interaction.user} has left the queue !`)
+                    await interaction.channel.send({embeds: [embed]}).then(message => {
+                        setImmediate(()=> message.delete(), 3000)})
+
+                    if(typeof previousLineUpReply !== undefined){
+                         interaction.channel.messages.fetch(previousLineUpReply).then(message => message.delete())
+                    }
+
                     let reply = await interactionUtils.createReplyForLineup(interaction, lineup)
-                    reply.embeds = reply.embeds.concat(embed)
-                    interaction.channel.send(reply)
+                    await interaction.channel.send(reply).then(newMessage => {previousLineUpReply=newMessage.id})
                     return
                 }
 
